@@ -1,39 +1,40 @@
 package com.miapp.modelo;
 
+import com.miapp.servicios.Inscribible;
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Modelo: representa la entidad Estudiante.
  */
-public final class Estudiante {  
+public class Estudiante extends Persona implements Inscribible {  
 
     private static int totalEstudiantes = 0;
+    private static final int MAX_MATERIAS = 7; 
     public static final int PROMEDIO_MINIMO = 0;
     public static final int PROMEDIO_MAXIMO = 5;
     public static final String CARRERA_PREDETERMINADA = "Sin especificar";
 
     // ── Atributos de instancia ────────────────────────────────────────────────
-    private int    id;
-    private String nombre;
-    private String apellido;
+
+    public Estudiante(int id, String carrera, String nombre, String apellido, double promedio) {
+        super(nombre, id, apellido);
+        this.carrera = carrera;
+        this.promedio = promedio;
+        this.curso = new ArrayList<>();
+    }
+
+    
+    
+   
     private String carrera;
     private double promedio;
-
+    private List<Curso> curso;
     // ── Constructor ───────────────────────────────────────────────────────────
 
-    public Estudiante(int id, String nombre, String apellido, String carrera, double promedio) {
-        this.id       = id;
-        this.nombre   = nombre;
-        this.apellido = apellido;
-        this.carrera  = carrera;
-   
-        if (promedio >= PROMEDIO_MINIMO && promedio <= PROMEDIO_MAXIMO) {
-            this.promedio = promedio;
-        } else {
-            this.promedio = 0.0;  // Por defecto si está fuera de rango
-        }
-        
-        // nuevo: Incrementa el contador estático de estudiantes
-        totalEstudiantes++;
-    }
+    
+
+    
 
     // ── Métodos estáticos (de clase) ──────────────────────────────────────────
 
@@ -50,19 +51,17 @@ public final class Estudiante {
     
     }
 
+    
+
     // ── Getters ──────────────────────────────────────────────────────────────
 
     public int getId() { 
         return id; 
     }
 
-    public String getNombre() { 
-        return nombre; 
-    }
+   
 
-    public String getApellido() {
-        return apellido;
-    }
+    
 
     public String getCarrera() { 
         return carrera; 
@@ -78,13 +77,6 @@ public final class Estudiante {
         this.id = id; 
     }
 
-    public void setNombre(String nombre) { 
-        this.nombre = nombre; 
-    }
-
-    public void setApellido(String apellido) { 
-        this.apellido = apellido; 
-    }
 
     public void setCarrera(String carrera) { 
         this.carrera = carrera; 
@@ -106,10 +98,22 @@ public final class Estudiante {
      */
     @Override
     public final String toString() {
-        return "ID: " + id
-             + " | Nombre: " + nombre
-             + " | Apellido: " + apellido   
+        return "ID: " + super.getId()
+             + " | Nombre: " + super.getNombre()
+             + " | Apellido: " + super.getApellido()
              + " | Carrera: " + carrera
              + " | Promedio: " + String.format("%.2f", promedio);
     }
+
+    @Override
+    public double calcularPago() {
+        return 0;
+    }
+
+    @Override
+    public boolean inscribir(Curso curso) {
+        return true;
+    }
+
+    
 }
