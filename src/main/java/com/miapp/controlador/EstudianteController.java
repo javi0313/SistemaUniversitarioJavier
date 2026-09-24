@@ -210,4 +210,14 @@ public class EstudianteController implements IBuscador {
 
         return true;
     }
+
+    @Override
+    public void buscarEstudiantesPorEstado(String estadoMatricula) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
+    @Override
+    public void buscarEsdutidantesPorCurso(String curso) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
 }

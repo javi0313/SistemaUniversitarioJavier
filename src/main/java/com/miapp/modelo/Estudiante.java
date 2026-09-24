@@ -4,9 +4,7 @@ import com.miapp.servicios.Inscribible;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Modelo: representa la entidad Estudiante.
- */
+
 public class Estudiante extends Persona implements Inscribible {  
 
     private static int totalEstudiantes = 0;
@@ -24,17 +22,10 @@ public class Estudiante extends Persona implements Inscribible {
         this.curso = new ArrayList<>();
     }
 
-    
-    
-   
     private String carrera;
     private double promedio;
     private List<Curso> curso;
-    // ── Constructor ───────────────────────────────────────────────────────────
 
-    
-
-    
 
     // ── Métodos estáticos (de clase) ──────────────────────────────────────────
 
