@@ -10,18 +10,19 @@ import java.util.List;
 
 public class EstudianteView extends JFrame {
 
-    // ── Constantes finales para dimensiones ────────────────────────────────────
-    private static final int ANCHO_VENTANA = 1000;
-    private static final int ALTO_VENTANA = 700;
+    private static final int ANCHO_VENTANA = 1100;
+    private static final int ALTO_VENTANA = 750;
     private static final int ANCHO_CAMPO_BUSQUEDA = 18;
     private static final int ANCHO_CAMPO_AGREGAR = 12;
     private static final int ALTO_FILA_TABLA = 24;
 
-    // ── Constantes finales para textos ─────────────────────────────────────────
-    private static final String TITULO_VENTANA = "Gestión de Estudiantes — MVC (Búsqueda + Agregar)";
+    private static final String TITULO_VENTANA = "Gestión de Estudiantes — MVC (Búsqueda + Agregar + Cursos + Profesores)";
     private static final String TITULO_PANEL_BUSQUEDA = "Buscar estudiante por nombre";
     private static final String TITULO_PANEL_CARRERA = "Buscar por carrera";
     private static final String TITULO_PANEL_AGREGAR = "Agregar nuevo estudiante";
+    private static final String TITULO_PANEL_CURSOS = "Cursos: inscripción y consulta";
+    private static final String TITULO_PANEL_PROFESORES = "Profesores: agregar y asignar a curso";
+    private static final String TITULO_PANEL_ESTADO = "Estado de matrícula: buscar y cambiar";
     private static final String TITULO_PANEL_RESULTADOS = "Resultados";
     private static final String LABEL_NOMBRE = "Nombre:";
     private static final String LABEL_APELLIDO = "Apellido:";
@@ -37,53 +38,64 @@ public class EstudianteView extends JFrame {
     private static final String MENSAJE_ENCONTRADOS_VARIOS = "Se encontraron {0} estudiante(s).";
     private static final String MENSAJE_SIN_RESULTADOS = "No se encontraron estudiantes con ese criterio.";
 
-    // ── Constantes finales para colores ────────────────────────────────────────
     private static final Color COLOR_BOTON_FONDO = new Color(59, 139, 212);
     private static final Color COLOR_BOTON_CARRERA = new Color(76, 175, 80);
     private static final Color COLOR_BOTON_LIMPIAR = new Color(244, 67, 54);
     private static final Color COLOR_BOTON_AGREGAR = new Color(103, 58, 183);
+    private static final Color COLOR_BOTON_CURSOS = new Color(0, 150, 136);
+    private static final Color COLOR_BOTON_INSCRIBIR = new Color(255, 152, 0);
+    private static final Color COLOR_BOTON_PROFESOR = new Color(63, 81, 181);
+    private static final Color COLOR_BOTON_ASIGNAR = new Color(33, 150, 243);
+    private static final Color COLOR_BOTON_ESTADO = new Color(76, 175, 80);
+    private static final Color COLOR_BOTON_CAMBIAR = new Color(0, 121, 107);
     private static final Color COLOR_BOTON_TEXTO = Color.WHITE;
     private static final Color COLOR_ESTADO_TEXTO = Color.GRAY;
 
-    // ── Columnas de la tabla (constante final) ─────────────────────────────────
-    private static final String[] COLUMNAS_TABLA = {"ID", "Nombre", "Apellido", "Carrera", "Promedio"};
+    private static final String[] COLUMNAS_TABLA = {"ID", "Nombre", "Apellido", "Carrera", "Promedio", "Estado"};
     private static final int INDICE_PROMEDIO = 4;
 
-    // ── Componentes UI - Búsqueda por nombre ────────────────────────────────────
     private JTextField             txtNombre;
     private JButton                btnBuscar;
 
-    // ── Componentes UI - Búsqueda por carrera ──────────────────────────────────
     private JComboBox<String>      cmbCarrera;
     private JButton                btnBuscarCarrera;
     private JButton                btnLimpiar;
 
-    // ── Componentes UI - Agregar estudiante ────────────────────────────────────
     private JTextField             txtAgregarNombre;
     private JTextField             txtAgregarApellido;
     private JComboBox<String>      cmbAgregarCarrera;
     private JSpinner               spinPromedio;
     private JButton                btnAgregar;
 
-    // ── Componentes UI - Resultados y Estado ────────────────────────────────────
+    private JComboBox<String>      cmbCurso;
+    private JButton                btnVerEstudiantesCurso;
+    private JButton                btnInscribirCurso;
+    private JLabel                 lblProfesorAsignado;
+
+    private JTextField             txtProfesorNombre;
+    private JTextField             txtProfesorSalario;
+    private JButton                btnAgregarProfesor;
+    private JComboBox<String>      cmbProfesor;
+    private JButton                btnVerCursosProfesor;
+    private JComboBox<String>      cmbCursoAsignar;
+    private JButton                btnAsignarCurso;
+
+    private JComboBox<String>      cmbNuevoEstado;
+    private JButton                btnBuscarEstado;
+    private JButton                btnCambiarEstado;
+
     private JTable                 tblResultados;
     private DefaultTableModel      modeloTabla;
     private JLabel                 lblEstado;
     private JLabel                 lblTotalEstudiantes;
 
-    // ── Controlador ───────────────────────────────────────────────────────────
     private EstudianteController controlador;
-
-    // ── Constructor ───────────────────────────────────────────────────────────
 
     public EstudianteView() {
         initComponentes();
         initEventos();
     }
 
-    // ── Inicialización de componentes ─────────────────────────────────────────
-
-   
     private void initComponentes() {
         setTitle(TITULO_VENTANA);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -91,11 +103,6 @@ public class EstudianteView extends JFrame {
         setLocationRelativeTo(null);
         setLayout(new BorderLayout(10, 10));
 
-        // ────────────────────────────────────────────────────────────────────────
-        // PANEL SUPERIOR: Búsqueda y Agregar (con GridLayout)
-        // ────────────────────────────────────────────────────────────────────────
-
-        // Panel búsqueda por nombre (Fila 1)
         JPanel panelBusqueda = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 5));
         panelBusqueda.setBorder(BorderFactory.createTitledBorder(TITULO_PANEL_BUSQUEDA));
 
@@ -110,14 +117,12 @@ public class EstudianteView extends JFrame {
         panelBusqueda.add(txtNombre);
         panelBusqueda.add(btnBuscar);
 
-        // Panel búsqueda por carrera (Fila 2)
         JPanel panelCarrera = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 5));
         panelCarrera.setBorder(BorderFactory.createTitledBorder(TITULO_PANEL_CARRERA));
 
         JLabel lblCarrera = new JLabel(LABEL_CARRERA);
         cmbCarrera = new JComboBox<>();
         cmbCarrera.addItem(OPCION_SELECCIONAR);
-        // Se carga después, cuando el controlador esté disponible
 
         btnBuscarCarrera = new JButton(BOTON_BUSCAR_CARRERA);
         btnBuscarCarrera.setBackground(COLOR_BOTON_CARRERA);
@@ -134,7 +139,6 @@ public class EstudianteView extends JFrame {
         panelCarrera.add(btnBuscarCarrera);
         panelCarrera.add(btnLimpiar);
 
-        // Panel agregar estudiante (Fila 3)
         JPanel panelAgregar = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 5));
         panelAgregar.setBorder(BorderFactory.createTitledBorder(TITULO_PANEL_AGREGAR));
 
@@ -147,7 +151,6 @@ public class EstudianteView extends JFrame {
         JLabel lblAgregarCarrera = new JLabel(LABEL_CARRERA);
         cmbAgregarCarrera = new JComboBox<>();
         cmbAgregarCarrera.addItem(OPCION_SELECCIONAR);
-        // Se carga después, cuando el controlador esté disponible
 
         JLabel lblAgregarPromedio = new JLabel(LABEL_PROMEDIO);
         spinPromedio = new JSpinner(new SpinnerNumberModel(3.0, 0.0, 5.0, 0.1));
@@ -168,15 +171,112 @@ public class EstudianteView extends JFrame {
         panelAgregar.add(spinPromedio);
         panelAgregar.add(btnAgregar);
 
-        // Panel superior con GridLayout (3 filas, 1 columna)
-        JPanel panelSuperior = new JPanel(new GridLayout(3, 1, 5, 5));
+        JPanel panelCursos = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 5));
+        panelCursos.setBorder(BorderFactory.createTitledBorder(TITULO_PANEL_CURSOS));
+
+        JLabel lblCurso = new JLabel("Curso:");
+        cmbCurso = new JComboBox<>();
+        cmbCurso.addItem("BDA100");
+        cmbCurso.addItem("SIS101");
+
+        btnVerEstudiantesCurso = new JButton("Ver estudiantes del curso");
+        btnVerEstudiantesCurso.setBackground(COLOR_BOTON_CURSOS);
+        btnVerEstudiantesCurso.setForeground(COLOR_BOTON_TEXTO);
+        btnVerEstudiantesCurso.setFocusPainted(false);
+
+        btnInscribirCurso = new JButton("Inscribir en curso");
+        btnInscribirCurso.setBackground(COLOR_BOTON_INSCRIBIR);
+        btnInscribirCurso.setForeground(COLOR_BOTON_TEXTO);
+        btnInscribirCurso.setFocusPainted(false);
+
+        lblProfesorAsignado = new JLabel("(primero busque y seleccione un estudiante en la tabla) Profesor asignado: (ninguno)");
+        lblProfesorAsignado.setForeground(Color.DARK_GRAY);
+
+        panelCursos.add(lblCurso);
+        panelCursos.add(cmbCurso);
+        panelCursos.add(btnVerEstudiantesCurso);
+        panelCursos.add(btnInscribirCurso);
+        panelCursos.add(lblProfesorAsignado);
+
+        JPanel panelProfesores = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 5));
+        panelProfesores.setBorder(BorderFactory.createTitledBorder(TITULO_PANEL_PROFESORES));
+
+        JLabel lblProfNombre = new JLabel("Nombre:");
+        txtProfesorNombre = new JTextField(10);
+        JLabel lblSalario = new JLabel("Salario base:");
+        txtProfesorSalario = new JTextField("5.000.000", 8);
+
+        btnAgregarProfesor = new JButton("Agregar Profesor");
+        btnAgregarProfesor.setBackground(COLOR_BOTON_PROFESOR);
+        btnAgregarProfesor.setForeground(COLOR_BOTON_TEXTO);
+        btnAgregarProfesor.setFocusPainted(false);
+
+        JLabel lblProfSelect = new JLabel("Profesor:");
+        cmbProfesor = new JComboBox<>();
+        cmbProfesor.addItem("Mg. Jorge Salcedo");
+
+        btnVerCursosProfesor = new JButton("Ver cursos del profesor");
+        btnVerCursosProfesor.setBackground(COLOR_BOTON_CURSOS);
+        btnVerCursosProfesor.setForeground(COLOR_BOTON_TEXTO);
+        btnVerCursosProfesor.setFocusPainted(false);
+
+        JLabel lblAsignarC = new JLabel("Curso a asignar:");
+        cmbCursoAsignar = new JComboBox<>();
+        cmbCursoAsignar.addItem("SIS101");
+
+        btnAsignarCurso = new JButton("Asignar a curso");
+        btnAsignarCurso.setBackground(COLOR_BOTON_ASIGNAR);
+        btnAsignarCurso.setForeground(COLOR_BOTON_TEXTO);
+        btnAsignarCurso.setFocusPainted(false);
+
+        panelProfesores.add(lblProfNombre);
+        panelProfesores.add(txtProfesorNombre);
+        panelProfesores.add(lblSalario);
+        panelProfesores.add(txtProfesorSalario);
+        panelProfesores.add(btnAgregarProfesor);
+        panelProfesores.add(lblProfSelect);
+        panelProfesores.add(cmbProfesor);
+        panelProfesores.add(btnVerCursosProfesor);
+        panelProfesores.add(lblAsignarC);
+        panelProfesores.add(cmbCursoAsignar);
+        panelProfesores.add(btnAsignarCurso);
+
+        JPanel panelEstado = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 5));
+        panelEstado.setBorder(BorderFactory.createTitledBorder(TITULO_PANEL_ESTADO));
+
+        JLabel lblNuevoEstado = new JLabel("Nuevo estado:");
+        cmbNuevoEstado = new JComboBox<>();
+        cmbNuevoEstado.addItem(OPCION_SELECCIONAR);
+        cmbNuevoEstado.addItem("ACTIVO");
+        cmbNuevoEstado.addItem("EGRESADO");
+        cmbNuevoEstado.addItem("RETIRADO");
+
+        btnBuscarEstado = new JButton("Buscar por estado");
+        btnBuscarEstado.setBackground(COLOR_BOTON_ESTADO);
+        btnBuscarEstado.setForeground(COLOR_BOTON_TEXTO);
+        btnBuscarEstado.setFocusPainted(false);
+
+        btnCambiarEstado = new JButton("Cambiar estado");
+        btnCambiarEstado.setBackground(COLOR_BOTON_CAMBIAR);
+        btnCambiarEstado.setForeground(COLOR_BOTON_TEXTO);
+        btnCambiarEstado.setFocusPainted(false);
+
+        JLabel lblNotaEstado = new JLabel("(\"Cambiar estado\" requiere seleccionar un estudiante en la tabla)");
+        lblNotaEstado.setForeground(Color.DARK_GRAY);
+
+        panelEstado.add(lblNuevoEstado);
+        panelEstado.add(cmbNuevoEstado);
+        panelEstado.add(btnBuscarEstado);
+        panelEstado.add(btnCambiarEstado);
+        panelEstado.add(lblNotaEstado);
+
+        JPanel panelSuperior = new JPanel(new GridLayout(6, 1, 2, 2));
         panelSuperior.add(panelBusqueda);
         panelSuperior.add(panelCarrera);
         panelSuperior.add(panelAgregar);
-
-        // ────────────────────────────────────────────────────────────────────────
-        // PANEL CENTRAL: Tabla de resultados
-        // ────────────────────────────────────────────────────────────────────────
+        panelSuperior.add(panelCursos);
+        panelSuperior.add(panelProfesores);
+        panelSuperior.add(panelEstado);
 
         modeloTabla = new DefaultTableModel(COLUMNAS_TABLA, 0) {
             @Override
@@ -189,10 +289,6 @@ public class EstudianteView extends JFrame {
 
         JScrollPane scroll = new JScrollPane(tblResultados);
         scroll.setBorder(BorderFactory.createTitledBorder(TITULO_PANEL_RESULTADOS));
-
-        // ────────────────────────────────────────────────────────────────────────
-        // PANEL INFERIOR: Estado y Total de estudiantes
-        // ────────────────────────────────────────────────────────────────────────
 
         JPanel panelInferior = new JPanel(new BorderLayout(10, 10));
 
@@ -208,20 +304,11 @@ public class EstudianteView extends JFrame {
         panelInferior.add(lblEstado, BorderLayout.WEST);
         panelInferior.add(lblTotalEstudiantes, BorderLayout.EAST);
 
-        // ────────────────────────────────────────────────────────────────────────
-        // Agregar todo al JFrame
-        // ────────────────────────────────────────────────────────────────────────
-
         add(panelSuperior,    BorderLayout.NORTH);
-        add(scroll,           BorderLayout.CENTER);
+        add(scroll,            BorderLayout.CENTER);
         add(panelInferior,    BorderLayout.SOUTH);
     }
 
-    // ── Métodos de inicialización ─────────────────────────────────────────────
-
-    /**
-     * Carga las carreras disponibles desde el controlador al combo de búsqueda.
-     */
     private void cargarCarreras() {
         if (controlador != null) {
             String[] carreras = controlador.obtenerCarrerasUnicas();
@@ -231,9 +318,6 @@ public class EstudianteView extends JFrame {
         }
     }
 
-    /**
-     * Carga las carreras disponibles desde el controlador al combo de agregar.
-     */
     private void cargarCarrerasAgregar() {
         if (controlador != null) {
             String[] carreras = controlador.obtenerCarrerasUnicas();
@@ -243,13 +327,7 @@ public class EstudianteView extends JFrame {
         }
     }
 
-    // ── Eventos ───────────────────────────────────────────────────────────────
-
-    /**
-     * Método que encapsula la inicialización de eventos.
-     */
     private void initEventos() {
-        // Evento: buscar por nombre
         btnBuscar.addActionListener((ActionEvent e) -> {
             if (controlador != null) {
                 controlador.buscarEstudiante(txtNombre.getText().trim());
@@ -258,7 +336,6 @@ public class EstudianteView extends JFrame {
 
         txtNombre.addActionListener((ActionEvent e) -> btnBuscar.doClick());
 
-        // Evento: buscar por carrera
         btnBuscarCarrera.addActionListener((ActionEvent e) -> {
             if (controlador != null) {
                 String carriSelected = (String) cmbCarrera.getSelectedItem();
@@ -270,12 +347,10 @@ public class EstudianteView extends JFrame {
             }
         });
 
-        // Evento: limpiar búsqueda
         btnLimpiar.addActionListener((ActionEvent e) -> {
             limpiarBusqueda();
         });
 
-        // Evento: agregar nuevo estudiante
         btnAgregar.addActionListener((ActionEvent e) -> {
             if (controlador != null) {
                 String nombre = txtAgregarNombre.getText().trim();
@@ -284,13 +359,30 @@ public class EstudianteView extends JFrame {
                 double promedio = (double) spinPromedio.getValue();
 
                 if (controlador.agregarEstudiante(nombre, apellido, carrera, promedio)) {
-                    // Limpiar formulario
                     txtAgregarNombre.setText("");
                     txtAgregarApellido.setText("");
                     cmbAgregarCarrera.setSelectedIndex(0);
                     spinPromedio.setValue(3.0);
                     actualizarTotalEstudiantes();
                 }
+            }
+        });
+
+        btnBuscarEstado.addActionListener((ActionEvent e) -> {
+            if (controlador != null) {
+                String estadoSelected = (String) cmbNuevoEstado.getSelectedItem();
+                if (estadoSelected != null && !estadoSelected.equals(OPCION_SELECCIONAR)) {
+                    controlador.buscarEstudiantesPorEstado(estadoSelected);
+                } else {
+                    mostrarError("Seleccione un estado de matrícula válido.");
+                }
+            }
+        });
+
+        btnVerEstudiantesCurso.addActionListener((ActionEvent e) -> {
+            if (controlador != null) {
+                String cursoSelected = (String) cmbCurso.getSelectedItem();
+                controlador.buscarEsdutidantesPorCurso(cursoSelected);
             }
         });
     }
@@ -313,30 +405,20 @@ public class EstudianteView extends JFrame {
         setEstado(String.format(MENSAJE_ENCONTRADOS_VARIOS, filas.size()));
     }
 
-    /**
-     * Muestra un mensaje de error en la barra de estado.
-     */
     public void mostrarError(String mensaje) {
         JOptionPane.showMessageDialog(this, mensaje, "Error", JOptionPane.ERROR_MESSAGE);
         setEstado("Error: " + mensaje);
     }
 
-    /**
-     * Muestra un mensaje de información/éxito en la barra de estado.
-     */
     public void mostrarMensaje(String mensaje) {
         JOptionPane.showMessageDialog(this, mensaje, "Información", JOptionPane.INFORMATION_MESSAGE);
         setEstado(mensaje);
     }
 
-    /**
-     * Devuelve el texto ingresado en el campo de nombre.
-     */
     public String getNombreBuscado() {
         return txtNombre.getText().trim();
     }
 
-   
     public void setControlador(EstudianteController controlador) {
         this.controlador = controlador;
         cargarCarreras();
@@ -344,15 +426,11 @@ public class EstudianteView extends JFrame {
         actualizarTotalEstudiantes();
     }
 
-
     private void actualizarTotalEstudiantes() {
         int total = (controlador != null) ? controlador.obtenerTotalEstudiantes() : 0;
         lblTotalEstudiantes.setText("Total de estudiantes: " + total);
     }
 
-    /**
-     * Limpia todos los campos de búsqueda y la tabla.
-     */
     private void limpiarBusqueda() {
         txtNombre.setText("");
         cmbCarrera.setSelectedIndex(0);
@@ -360,16 +438,10 @@ public class EstudianteView extends JFrame {
         setEstado(MENSAJE_INICIAL);
     }
 
-    /**
-     * Limpia todas las filas de la tabla.
-     */
     private void limpiarTabla() {
         modeloTabla.setRowCount(0);
     }
 
-    /**
-     * Actualiza el texto del label de estado.
-     */
     private void setEstado(String texto) {
         lblEstado.setText(texto);
     }

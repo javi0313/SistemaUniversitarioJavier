@@ -1,12 +1,9 @@
-
 package com.miapp.modelo;
 
 public abstract class Persona {
    private String nombre;
    protected int id;
    private String apellido;
-
-    
 
     public Persona(String nombre, int id, String apellido) {
         this.nombre = nombre;
@@ -37,7 +34,6 @@ public abstract class Persona {
     public void setId(int id) {
         this.id = id;
     }
-    
-     public abstract double calcularPago();
-   
+     
+    public abstract double calcularPago();
 }

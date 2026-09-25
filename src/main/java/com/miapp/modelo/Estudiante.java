@@ -1,9 +1,9 @@
 package com.miapp.modelo;
 
 import com.miapp.servicios.Inscribible;
+import com.miapp.utilidades.EstadoMatricula;
 import java.util.ArrayList;
 import java.util.List;
-
 
 public class Estudiante extends Persona implements Inscribible {  
 
@@ -13,21 +13,19 @@ public class Estudiante extends Persona implements Inscribible {
     public static final int PROMEDIO_MAXIMO = 5;
     public static final String CARRERA_PREDETERMINADA = "Sin especificar";
 
-    // ── Atributos de instancia ────────────────────────────────────────────────
-
-    public Estudiante(int id, String carrera, String nombre, String apellido, double promedio) {
-        super(nombre, id, apellido);
-        this.carrera = carrera;
-        this.promedio = promedio;
-        this.curso = new ArrayList<>();
-    }
+    public Estudiante(int id, String nombre, String apellido, String carrera, double promedio) {
+    super(nombre, id, apellido);
+    this.carrera = carrera;
+    this.promedio = promedio;
+    this.curso = new ArrayList<>();
+    this.estadoMatricula = EstadoMatricula.ACTIVO;
+    totalEstudiantes++;
+}
 
     private String carrera;
     private double promedio;
     private List<Curso> curso;
-
-
-    // ── Métodos estáticos (de clase) ──────────────────────────────────────────
+    private EstadoMatricula estadoMatricula;
 
     public static int getTotalEstudiantes() {
         return totalEstudiantes;
@@ -39,54 +37,50 @@ public class Estudiante extends Persona implements Inscribible {
 
     public static int getProximoId() {  
         return totalEstudiantes + 1;
-    
     }
 
-    
-
-    // ── Getters ──────────────────────────────────────────────────────────────
-
-    public int getId() { 
+    public int getId() {  
         return id; 
     }
 
-   
-
-    
-
-    public String getCarrera() { 
+    public String getCarrera() {  
         return carrera; 
     }
 
-    public double getPromedio() { 
+    public double getPromedio() {  
         return promedio; 
     }
 
-    // ── Setters ──────────────────────────────────────────────────────────────
+    public List<Curso> getCurso() {
+        return curso;
+    }
 
-    public void setId(int id) { 
+    public void setCurso(List<Curso> curso) {
+        this.curso = curso;
+    }
+
+    public EstadoMatricula getEstadoMatricula() {
+        return estadoMatricula;
+    }
+
+    public void setEstadoMatricula(EstadoMatricula estadoMatricula) {
+        this.estadoMatricula = estadoMatricula;
+    }
+
+    public void setId(int id) {  
         this.id = id; 
     }
 
-
-    public void setCarrera(String carrera) { 
+    public void setCarrera(String carrera) {  
         this.carrera = carrera; 
     }
 
-    /**
-     Valida el promedio antes de asignarlo usando constantes finales
-     * @param p promedio a validar (debe estar entre PROMEDIO_MINIMO y PROMEDIO_MAXIMO)
-     */
     public void setPromedio(double p) {
-        // nuevo: Uso de constantes finales para validación
         if (p >= PROMEDIO_MINIMO && p <= PROMEDIO_MAXIMO) {
             this.promedio = p;
         }
     }
 
-    /**
-     Método final: no puede ser sobrescrito por subclases
-     */
     @Override
     public final String toString() {
         return "ID: " + super.getId()
@@ -103,8 +97,11 @@ public class Estudiante extends Persona implements Inscribible {
 
     @Override
     public boolean inscribir(Curso curso) {
-        return true;
+        if (this.curso.size() < MAX_MATERIAS && !this.curso.contains(curso)) {
+            this.curso.add(curso);
+            curso.agregarEstudiante(this);
+            return true;
+        }
+        return false;
     }
-
-    
 }
